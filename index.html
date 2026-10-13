@@ -75,8 +75,6 @@ select{font-weight:700;appearance:auto}
 .results-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
 .results-head h2{font-size:16px;margin:0 0 4px;font-weight:800}
 .results-head p{font-size:12px;color:#e0cfb4;margin:0}
-.live-tag{display:flex;align-items:center;gap:5px;background:#ffffff18;border:1px solid #ffffff20;padding:6px 9px;border-radius:30px;font-size:11px;color:#f7e8cd;white-space:nowrap}
-.live-dot{width:6px;height:6px;background:#d9bd88;border-radius:50%}
 .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .result-card{background:#ffffff0d;border:1px solid #ffffff22;border-radius:17px;padding:15px 13px}
 .result-label{display:flex;align-items:center;gap:7px;font-size:13px;color:#e8d7bd;font-weight:600}
@@ -230,6 +228,90 @@ body { min-height: 100vh; min-height: 100dvh; }
   .app { padding-left: 13px; padding-right: 13px; }
   .home-view header { margin-bottom: 10px; }
 }
+
+/* Centered results layout: clearer, balanced, and consistent */
+.results-head {
+  justify-content: center;
+  text-align: center;
+}
+.results-head > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.results-head h2,
+.results-head p {
+  text-align: center;
+}
+.results-head .live-tag {
+  flex-shrink: 0;
+}
+.result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.result-label {
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+.result-number,
+.result-unit {
+  width: 100%;
+  text-align: center;
+}
+.result-foot {
+  justify-content: center;
+  text-align: center;
+  flex-wrap: wrap;
+}
+.result-foot span,
+.result-foot strong {
+  text-align: center;
+}
+.results .original-recipe {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+.results .original-recipe span,
+.results .original-recipe strong {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+.results .notes-foot {
+  justify-content: center;
+  text-align: center;
+}
+.water-head {
+  justify-content: center;
+  gap: 10px;
+}
+.water-input-wrap input {
+  text-align: center;
+}
+.water-input-wrap span {
+  flex-shrink: 0;
+}
+.quick-amounts .chip {
+  text-align: center;
+}
+.result-tools button,
+.export-image-btn {
+  text-align: center;
+}
+@media (max-width: 380px) {
+  .results-head {
+    flex-wrap: wrap;
+  }
+  .results-head .live-tag {
+    margin-inline: auto;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -461,7 +543,7 @@ body { min-height: 100vh; min-height: 100dvh; }
     if(!(water>0)){area.innerHTML='<div class="empty">'+icons.tea+'<strong>أدخل كمية ماء صحيحة</strong><p>يجب أن تكون كمية الماء أكبر من صفر.</p></div>';return}
     const factor=water/1000,tea=r.tea*factor,sugar=r.sugar*factor;
     area.innerHTML=`<section class="results">
-      <div class="results-head"><div><h2>${escapeHtml(r.name)}</h2><p>المقادير المطلوبة لكمية الماء المحددة</p></div><div class="live-tag"><span class="live-dot"></span>حساب مباشر</div></div>
+      <div class="results-head"><div><h2>${escapeHtml(r.name)}</h2><p>المقادير المطلوبة لكمية الماء المحددة</p></div></div>
       <div class="result-grid">
         <div class="result-card"><div class="result-label">${icons.leaf}<span>ورق الشاي</span></div><div class="result-number">${fmtResult(tea)}</div><div class="result-unit">غرام</div></div>
         <div class="result-card"><div class="result-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5"/></svg><span>السكر</span></div><div class="result-number">${fmtResult(sugar)}</div><div class="result-unit">غرام</div></div>
@@ -487,113 +569,533 @@ body { min-height: 100vh; min-height: 100dvh; }
     for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test;}
     if(line)lines.push(line);return lines;
   }
-  async function exportRecipeImage(){
-    const r=selected(),water=Number($('waterInput').value);
-    if(!r){showToast('اختر نوع الشاي أولاً');return;}
-    if(!Number.isFinite(water)||water<=0||water>1000000){showToast('أدخل كمية ماء صحيحة');return;}
-    try{
-      if(document.fonts?.load) await Promise.all([
+  async function exportRecipeImage() {
+  const r = selected();
+  const water = Number($('waterInput').value);
+
+  if (!r) {
+    showToast('اختر نوع الشاي أولاً');
+    return;
+  }
+
+  if (!Number.isFinite(water) || water <= 0 || water > 1000000) {
+    showToast('أدخل كمية ماء صحيحة');
+    return;
+  }
+
+  try {
+    if (document.fonts?.load) {
+      await Promise.all([
         document.fonts.load('800 52px Tajawal'),
         document.fonts.load('700 32px Tajawal'),
         document.fonts.load('500 24px Tajawal')
       ]);
-      const SIZE=1200,canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=SIZE;
-      const ctx=canvas.getContext('2d');
-      if(!ctx) throw new Error('Canvas context unavailable');
-      const C={deep:'#352316',brown:'#654326',brown2:'#76522f',gold:'#c9a66b',goldLight:'#ead4a8',paper:'#fbf6ec',paper2:'#f4ead8',ink:'#34271c',muted:'#88745c',line:'#dfcba9',white:'#fffdf8'};
-      const round=(x,y,w,h,rad,fill,stroke=null,lineWidth=1)=>{
-        roundedRect(ctx,x,y,w,h,rad);if(fill){ctx.fillStyle=fill;ctx.fill();}
-        if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}
-      };
-      const shadowRound=(x,y,w,h,rad,fill,shadow='rgba(18,10,4,.22)',blur=22,offset=8)=>{
-        ctx.save();ctx.shadowColor=shadow;ctx.shadowBlur=blur;ctx.shadowOffsetY=offset;round(x,y,w,h,rad,fill);ctx.restore();
-      };
-      const fitText=(text,maxWidth,startSize,minSize,weight=800)=>{
-        let size=startSize;ctx.font=`${weight} ${size}px Tajawal, sans-serif`;
-        while(size>minSize&&ctx.measureText(String(text)).width>maxWidth){size-=2;ctx.font=`${weight} ${size}px Tajawal, sans-serif`;}
-        return size;
-      };
-      const centered=(text,x,y,size,color,weight=600)=>canvasText(ctx,text,x,y,size,color,weight,'center');
+    }
 
-      // Rich brown backdrop with restrained light falloff.
-      const bg=ctx.createLinearGradient(0,0,SIZE,SIZE);
-      bg.addColorStop(0,'#76522f');bg.addColorStop(.48,'#563921');bg.addColorStop(1,'#342216');
-      ctx.fillStyle=bg;ctx.fillRect(0,0,SIZE,SIZE);
-      const glow=ctx.createRadialGradient(600,170,20,600,170,720);
-      glow.addColorStop(0,'rgba(239,211,162,.22)');glow.addColorStop(1,'rgba(239,211,162,0)');
-      ctx.fillStyle=glow;ctx.fillRect(0,0,SIZE,SIZE);
-      // Main paper surface: generous and consistent 5% outer margin.
-      shadowRound(48,48,1104,1104,38,'#fbf6ec','rgba(20,11,4,.32)',30,12);
-      round(62,62,1076,1076,30,null,'rgba(201,166,107,.75)',2);
-      // Top accent bar.
-      round(500,82,200,7,4,C.gold);
-      centered('الشاي على أصوله',600,126,22,C.muted,700);
-      centered('وزنيات محمد سالم',600,174,36,C.ink,800);
-      // Recipe title panel, dynamically fitted to avoid clipping.
-      const titleY=210,titleH=124;
-      round(112,titleY,976,titleH,24,'#f2e6d1','#e4d0ad',1.5);
-      round(142,titleY+22,5,titleH-44,3,C.gold);
-      const nameLines=wrapCanvasText(ctx,r.name,850,'800 42px Tajawal, sans-serif');
-      const visibleName=nameLines.slice(0,2);
-      const titleSize=fitText(visibleName.length===1?visibleName[0]:'',850,42,28,800);
-      if(visibleName.length===1){centered(visibleName[0],600,titleY+76,titleSize,C.deep,800);}
-      else {
-        const size=Math.min(34,fitText(visibleName.join(' '),850,34,25,800));
-        centered(visibleName[0],600,titleY+55,size,C.deep,800);
-        centered(visibleName[1]+(nameLines.length>2?'…':''),600,titleY+96,size,C.deep,800);
-      }
-      // Water amount: secondary to the recipe quantities, but visually clear.
-      const waterY=365;
-      shadowRound(250,waterY,700,82,22,'#ead8b7','rgba(70,43,18,.13)',12,4);
-      round(250,waterY,700,82,22,null,'#d5bb8d',1.5);
-      centered('كمية الماء',600,waterY+29,19,C.muted,700);
-      const waterLabel=`${fmt(water)} مل`;
-      centered(waterLabel,600,waterY+62,29,C.deep,800);
-      // Two balanced hero cards. The tea amount gets a subtle emphasis.
-      const cardsY=478,cardW=452,cardH=300,gap=24,left=136,right=612;
-      function resultCard(x,label,value,featured){
-        const fill=featured?'#684728':'#76522f';
-        shadowRound(x,cardsY,cardW,cardH,26,fill,'rgba(47,29,13,.24)',18,7);
-        round(x,cardsY,cardW,cardH,26,null,featured?'#d7b77e':'rgba(255,246,227,.38)',1.5);
-        // restrained top highlight
-        round(x+cardW/2-28,cardsY+22,56,5,3,C.goldLight);
-        centered(label,x+cardW/2,cardsY+77,25,'#f4e5c9',700);
-        const valueText=String(value),valueSize=fitText(valueText,cardW-54,82,48,800);
-        centered(valueText,x+cardW/2,cardsY+190,valueSize,C.white,800);
-        centered('غرام',x+cardW/2,cardsY+235,20,'#e6d1ac',600);
-        // Small separator anchors the layout without visual clutter.
-        ctx.save();ctx.strokeStyle='rgba(255,248,234,.23)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+76,cardsY+258);ctx.lineTo(x+cardW-76,cardsY+258);ctx.stroke();ctx.restore();
-      }
-      resultCard(right,'ورق الشاي',fmtResult(r.tea*water/1000),true);
-      resultCard(left,'السكر',fmtResult(r.sugar*water/1000),false);
-      // Original recipe is intentionally smaller and quieter than the live result.
-      const originalY=806;
-      round(164,originalY,872,76,18,'#f0e4cf','#e1ceb0',1);
-      centered('الوزنية الأصلية لكل لتر',600,originalY+27,17,C.muted,600);
-      const originalText=`شاي ${fmt(r.tea)} غ   ·   سكر ${fmt(r.sugar)} غ`;
-      centered(originalText,600,originalY+55,fitText(originalText,800,22,17,700),C.brown,700);
-      // Notes are optional and safely constrained to their own area.
-      if(r.notes){
-        const noteY=900;
-        centered('ملاحظات',600,noteY,17,C.muted,700);
-        const lines=wrapCanvasText(ctx,r.notes,820,'500 19px Tajawal, sans-serif').slice(0,2);
-        if(lines.length){
-          round(170,noteY+14,860,Math.max(52,lines.length*27+18),15,'#f6eddf','#e8dcc7',1);
-          lines.forEach((line,i)=>centered(line,600,noteY+47+i*25,fitText(line,810,19,15,500),C.ink,500));
-          if(wrapCanvasText(ctx,r.notes,820,'500 19px Tajawal, sans-serif').length>2){
-            // The ellipsis sits inside the notes panel without expanding the layout.
-            centered('…',600,noteY+47+lines.length*25,16,C.muted,500);
-          }
-        }
-      }
-      // Footer and fine divider finish the composition.
-      ctx.save();ctx.strokeStyle='#dfcba9';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(330,1082);ctx.lineTo(870,1082);ctx.stroke();ctx.restore();
-      centered('وزنيات محمد سالم',600,1110,18,C.muted,700);
+    const SIZE = 1200;
+    const canvas = document.createElement('canvas');
+    canvas.width = SIZE;
+    canvas.height = SIZE;
 
-      const safeName=String(r.name).replace(/[\\/:*?"<>|]/g,'-').slice(0,70);
-      const filename=`وزنية-${safeName}-${fmt(water)}مل.png`;
-      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-      if(!blob){openCanvasImage(canvas,filename);return;}
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas context unavailable');
+
+    // لوحة ألوان بنية متناسقة مع هوية المشروع.
+    const C = {
+      bg: '#3B281B',
+      paper: '#fffdf8',
+      ink: '#29251f',
+      muted: '#82796c',
+      brown: '#76522f',
+      brown2: '#553a22',
+      gold: '#c9a66b',
+      soft: '#efe2cb',
+      line: '#e8decd',
+      resultText: '#fff9ed',
+      label: '#e8d7bd',
+      unit: '#d7c2a2',
+      originalBg: '#EAD5B5',
+      originalText: '#553a22',
+      originalMuted: '#806d54'
+    };
+
+    // أدوات الرسم.
+    const round = (
+      x, y, w, h, radius, fill,
+      stroke = null, lineWidth = 1
+    ) => {
+      roundedRect(ctx, x, y, w, h, radius);
+
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+
+      if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+    };
+
+    const shadowRound = (
+      x, y, w, h, radius, fill,
+      shadow = 'rgba(24,12,5,.25)',
+      blur = 20,
+      offset = 6
+    ) => {
+      ctx.save();
+      ctx.shadowColor = shadow;
+      ctx.shadowBlur = blur;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = offset;
+      round(x, y, w, h, radius, fill);
+      ctx.restore();
+    };
+
+    const fitText = (
+      text, maxWidth, startSize, minSize, weight = 800
+    ) => {
+      let size = startSize;
+      ctx.font = `${weight} ${size}px Tajawal, sans-serif`;
+
+      while (
+        size > minSize &&
+        ctx.measureText(String(text)).width > maxWidth
+      ) {
+        size -= 1;
+        ctx.font = `${weight} ${size}px Tajawal, sans-serif`;
+      }
+
+      return size;
+    };
+
+    const centered = (
+      text, x, y, size, color, weight = 600
+    ) => {
+      canvasText(ctx, text, x, y, size, color, weight, 'center');
+    };
+
+    // =====================================================
+    // 1. الخلفية البنية والإطار الرئيسي
+    // =====================================================
+
+    const bgGradient = ctx.createLinearGradient(
+      0, 0, SIZE, SIZE
+    );
+    bgGradient.addColorStop(0, '#493020');
+    bgGradient.addColorStop(0.55, '#382519');
+    bgGradient.addColorStop(1, '#2D1E14');
+
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // إضاءة بنية ذهبية ناعمة.
+    const ambient = ctx.createRadialGradient(
+      600, 250, 20,
+      600, 250, 950
+    );
+    ambient.addColorStop(0, 'rgba(201,166,107,.13)');
+    ambient.addColorStop(1, 'rgba(201,166,107,0)');
+
+    ctx.fillStyle = ambient;
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // البطاقة الرئيسية.
+    const panelGradient = ctx.createLinearGradient(
+      55, 45, 1145, 1155
+    );
+    panelGradient.addColorStop(0, '#76522f');
+    panelGradient.addColorStop(1, '#563a22');
+
+    shadowRound(
+      42, 42, 1116, 1116, 30,
+      panelGradient,
+      'rgba(0,0,0,.28)',
+      28, 10
+    );
+
+    round(
+      56, 56, 1088, 1088, 23,
+      null,
+      'rgba(255,255,255,.13)',
+      1.5
+    );
+
+    // =====================================================
+    // 2. رأس الصورة
+    // =====================================================
+
+    round(535, 78, 130, 5, 3, C.gold);
+
+    centered(
+      'الشاي على اصوله',
+      600, 119, 21,
+      '#e0cfb4', 800
+    );
+
+    centered(
+      'وزنيات محمد سالم',
+      600, 164, 34,
+      C.resultText, 800
+    );
+
+    // =====================================================
+    // 3. اسم الشاي
+    // =====================================================
+
+    const titleY = 270;
+    const titleH = 106;
+
+    shadowRound(
+      82, titleY, 1036, titleH, 19,
+      'rgba(255,255,255,.075)',
+      'rgba(25,14,7,.12)',
+      12, 3
+    );
+
+    round(
+      82, titleY, 1036, titleH, 19,
+      null,
+      'rgba(255,255,255,.16)',
+      1
+    );
+
+    const displayName = `شاي ${r.name}`;
+
+    const nameLines = wrapCanvasText(
+      ctx,
+      displayName,
+      900,
+      '800 42px Tajawal, sans-serif'
+    );
+
+    const visibleName = nameLines.slice(0, 2);
+
+    if (visibleName.length === 1) {
+      const size = fitText(
+        visibleName[0], 900, 43, 28, 800
+      );
+
+      centered(
+        visibleName[0],
+        600, titleY + 65, size,
+        C.resultText, 800
+      );
+    } else {
+      const size = Math.min(
+        35,
+        fitText(
+          visibleName.join(' '),
+          900, 35, 25, 800
+        )
+      );
+
+      centered(
+        visibleName[0],
+        600, titleY + 41, size,
+        C.resultText, 800
+      );
+
+      centered(
+        visibleName[1] + (nameLines.length > 2 ? '…' : ''),
+        600, titleY + 77, size,
+        C.resultText, 800
+      );
+    }
+
+    // =====================================================
+    // 4. كمية الماء
+    // =====================================================
+
+    const waterY = 402;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(105, waterY);
+    ctx.lineTo(1095, waterY);
+    ctx.stroke();
+    ctx.restore();
+
+    centered(
+      'كمية الماء المستخدمة',
+      600, waterY + 30, 21,
+      C.label, 600
+    );
+
+    centered(
+      `${fmt(water)} مل`,
+      600, waterY + 68, 33,
+      C.resultText, 800
+    );
+
+    // =====================================================
+    // 5. بطاقتا الوزنية
+    // =====================================================
+
+    const cardsY = 495;
+    const cardW = 486;
+    const cardH = 270;
+    const gap = 18;
+
+    const right = 600 + gap / 2;
+    const left = 600 - gap / 2 - cardW;
+
+    function resultCard(x, label, value, type) {
+      const y = cardsY;
+
+      shadowRound(
+        x, y, cardW, cardH, 20,
+        'rgba(255,255,255,.055)',
+        'rgba(20,10,4,.22)',
+        15, 5
+      );
+
+      round(
+        x, y, cardW, cardH, 20,
+        null,
+        'rgba(255,255,255,.15)',
+        1.5
+      );
+
+      // الأيقونات.
+      const iconColor = C.gold;
+
+      if (type === 'tea') {
+        ctx.save();
+        ctx.translate(x + cardW / 2, y + 39);
+        ctx.strokeStyle = iconColor;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(-12, 7);
+        ctx.bezierCurveTo(-14, -10, 4, -18, 15, -15);
+        ctx.bezierCurveTo(15, -2, 7, 12, -5, 12);
+        ctx.bezierCurveTo(-9, 12, -12, 10, -12, 7);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-13, 14);
+        ctx.quadraticCurveTo(-3, 1, 10, -10);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.translate(x + cardW / 2, y + 39);
+        ctx.strokeStyle = iconColor;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(0, -15);
+        ctx.lineTo(12, -3);
+        ctx.lineTo(8, 12);
+        ctx.lineTo(-8, 12);
+        ctx.lineTo(-12, -3);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      centered(
+        label,
+        x + cardW / 2, y + 84, 23,
+        C.label, 700
+      );
+
+      // الرقم هو العنصر الأبرز.
+      const valueText = String(value);
+      const valueSize = fitText(
+        valueText, cardW - 54, 78, 43, 800
+      );
+
+      centered(
+        valueText,
+        x + cardW / 2, y + 163, valueSize,
+        C.resultText, 800
+      );
+
+      centered(
+        'غرام',
+        x + cardW / 2, y + 193, 19,
+        C.unit, 600
+      );
+
+      // الفاصل داخل البطاقة.
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,.13)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + 32, y + 222);
+      ctx.lineTo(x + cardW - 32, y + 222);
+      ctx.stroke();
+      ctx.restore();
+
+      // النص السفلي داخل حدود البطاقة.
+      centered(
+        type === 'tea' ? 'كمية ورق الشاي' : 'كمية السكر',
+        x + cardW / 2, y + 249, 14,
+        '#d7c2a2', 500
+      );
+    }
+
+    resultCard(
+      right,
+      'ورق الشاي',
+      fmtResult(r.tea * water / 1000),
+      'tea'
+    );
+
+    resultCard(
+      left,
+      'السكر',
+      fmtResult(r.sugar * water / 1000),
+      'sugar'
+    );
+
+    // =====================================================
+    // 6. بطاقة الوزنية الأصلية مع ظل بارز
+    // =====================================================
+
+    const originalY = 805;
+    const originalH = 82;
+
+    // الظل يرسم أولاً حتى لا يغطي النص أو الإطار.
+    shadowRound(
+      91, originalY, 1018, originalH, 15,
+      C.originalBg,
+      'rgba(20,10,4,.42)',
+      25, 10
+    );
+
+    // إطار ذهبي واضح وهادئ.
+    round(
+      91, originalY, 1018, originalH, 15,
+      null,
+      '#C9A66B',
+      1.5
+    );
+
+    centered(
+      'الوزنية الأصلية لكل لتر',
+      600, originalY + 26, 17,
+      C.originalMuted, 600
+    );
+
+    const originalText =
+      `شاي ${fmt(r.tea)} غ   ·   سكر ${fmt(r.sugar)} غ`;
+
+    centered(
+      originalText,
+      600, originalY + 57,
+      fitText(originalText, 950, 23, 17, 800),
+      C.originalText, 800
+    );
+
+    // =====================================================
+    // 7. الملاحظات
+    // =====================================================
+
+    let footerLineY = 1015;
+
+    if (r.notes && String(r.notes).trim()) {
+      const noteY = 842;
+
+      centered(
+        'ملاحظات',
+        600, noteY, 17,
+        C.label, 700
+      );
+
+      const allNoteLines = wrapCanvasText(
+        ctx,
+        String(r.notes).trim(),
+        940,
+        '500 19px Tajawal, sans-serif'
+      );
+
+      const noteLines = allNoteLines.slice(0, 2);
+      const noteH = Math.max(62, noteLines.length * 27 + 25);
+      const noteBoxY = noteY + 12;
+
+      round(
+        91, noteBoxY, 1018, noteH, 13,
+        'rgba(255,255,255,.055)',
+        'rgba(255,255,255,.12)',
+        1
+      );
+
+      noteLines.forEach((line, i) => {
+        centered(
+          line,
+          600,
+          noteBoxY + 22 + i * 27,
+          fitText(line, 950, 19, 15, 500),
+          C.resultText,
+          500
+        );
+      });
+
+      if (allNoteLines.length > 2) {
+        centered(
+          '…',
+          600,
+          noteBoxY + noteH - 3,
+          16,
+          C.unit,
+          500
+        );
+      }
+
+      footerLineY = Math.min(
+        1050,
+        Math.max(1000, noteBoxY + noteH + 34)
+      );
+    }
+
+    // =====================================================
+    // 8. التذييل
+    // =====================================================
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,.17)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(360, footerLineY);
+    ctx.lineTo(840, footerLineY);
+    ctx.stroke();
+    ctx.restore();
+
+    centered(
+      'وزنيات محمد سالم',
+      600, footerLineY + 30, 17,
+      '#d7c2a2', 700
+    );
+
+    // =====================================================
+    // 9. تصدير الصورة
+    // =====================================================
+
+    const safeName = String(`شاي ${r.name}`)
+      .replace(/[\\/:*?"<>|]/g, '-')
+      .slice(0, 70);
+
+    const filename = `وزنية-${safeName}-${fmt(water)}مل.png`;
+
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/png');
+    });
+
+    if (!blob) {
+      openCanvasImage(canvas, filename);
+      return;
+    }
+
+
       const url=URL.createObjectURL(blob),a=document.createElement('a');
       a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),1800);
