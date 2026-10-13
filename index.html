@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f0e5">
+<title>وزنيات الشاي</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap');
+:root{--bg:#f6f0e5;--paper:#fffdf8;--ink:#29251f;--muted:#82796c;--line:#e8decd;--brown:#76522f;--brown2:#553a22;--gold:#c9a66b;--soft:#efe2cb;--green:#46694f;--danger:#a34437;--shadow:0 12px 32px rgba(76,53,26,.07)}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal',system-ui,-apple-system,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:min(100%,600px);height:100vh;height:100dvh;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 16px calc(10px + env(safe-area-inset-bottom));overflow:hidden;display:flex;flex-direction:column}
+.view{min-height:0;flex:1;display:none}
+.view.active{display:flex;flex-direction:column}
+.home-view{overflow:hidden}
+.home-view header{flex-shrink:0;margin:2px 0 12px}
+.home-content{min-height:0;display:flex;flex-direction:column;gap:10px}
+.home-content .section-label{margin-bottom:0}
+.home-content .panel{margin:0;padding:13px}
+.home-content .water-head{margin:12px 0 7px}
+.home-content .water-input-wrap input{font-size:28px;padding:5px 0}
+.home-content .quick-amounts{padding-top:7px}
+.home-content .results{margin:0;padding:15px}
+.home-content .results-head{margin-bottom:10px}
+.home-content .result-card{padding:11px}
+.home-content .result-number{font-size:30px;margin:7px 0 2px}
+.home-content .result-foot{margin-top:9px;padding-top:8px}
+.home-content .empty{margin:0;padding:14px}
+.home-content .empty p{line-height:1.4}
+.settings-view{overflow-y:auto;overscroll-behavior:contain;padding-bottom:10px}
+.settings-header{display:flex;align-items:center;gap:10px;margin:2px 0 16px;flex-shrink:0}
+.settings-header h1{font-size:23px}
+.settings-intro{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 14px}
+.settings-toolbar{display:flex;gap:8px;margin-bottom:12px}
+.settings-toolbar .btn{flex:1}
+.settings-view .section-head{margin-top:12px}
+.settings-view .recipe-list{gap:7px}
+.settings-view .recipe-item{padding:10px}
+.settings-view .backup-row{margin:14px 0}
+.back-link{flex-shrink:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 22px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:17px;background:var(--brown);display:grid;place-items:center;color:#fff8eb;box-shadow:0 7px 18px #76522f2b}
+.logo svg{width:27px;height:27px}
+.eyebrow{font-size:11px;letter-spacing:1.5px;color:var(--brown);font-weight:800}
+h1{font-size:25px;line-height:1.1;margin:3px 0 0;font-weight:800;letter-spacing:-.4px}
+.header-note{font-size:12px;color:var(--muted);margin-top:5px}
+.icon-btn{border:1px solid var(--line);background:var(--paper);width:43px;height:43px;border-radius:14px;display:grid;place-items:center;color:var(--brown)}
+.icon-btn svg{width:19px;height:19px}
+.section-label{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px;font-size:14px;font-weight:800}
+.section-label small{font-weight:500;color:var(--muted);font-size:12px}
+.panel{background:var(--paper);border:1px solid #eee4d5;border-radius:23px;padding:17px;box-shadow:var(--shadow);margin-bottom:14px}
+.recipe-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+select,.field input,.field textarea{width:100%;min-width:0;background:#fffdf9;border:1px solid var(--line);border-radius:13px;padding:12px 13px;color:var(--ink);outline:none}
+select:focus,.field input:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px #c9a66b25}
+.select-wrap{flex:1;min-width:0}
+select{font-weight:700;appearance:auto}
+.small-add{white-space:nowrap;display:flex;align-items:center;gap:5px;border:0;background:var(--soft);color:var(--brown2);font-weight:800;border-radius:12px;padding:12px 13px}
+.small-add svg{width:16px;height:16px}
+.water-head{display:flex;align-items:center;justify-content:space-between;margin:17px 0 9px}
+.water-head label{font-size:14px;font-weight:800}
+.unit-hint{font-size:12px;color:var(--muted)}
+.water-input-wrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:16px;background:#fffdf9;padding:3px 14px}
+.water-input-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:31px;font-weight:800;letter-spacing:-.7px;padding:9px 0;color:var(--brown2);font-variant-numeric:tabular-nums}
+.water-input-wrap span{font-size:14px;color:var(--muted);font-weight:700}
+.quick-amounts{display:flex;gap:7px;overflow-x:auto;padding:10px 0 1px;scrollbar-width:none}
+.quick-amounts::-webkit-scrollbar{display:none}
+.chip{flex:1;min-width:55px;border:1px solid var(--line);background:transparent;border-radius:11px;padding:8px 6px;color:var(--muted);font-size:12px;font-weight:700}
+.chip.active{background:var(--soft);border-color:#d9c29c;color:var(--brown2)}
+.results{background:linear-gradient(145deg,#76522f,#563a22);border-radius:23px;color:#fff9ed;padding:18px;box-shadow:0 14px 28px #5b3c241f;margin-bottom:14px}
+.results-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
+.results-head h2{font-size:16px;margin:0 0 4px;font-weight:800}
+.results-head p{font-size:12px;color:#e0cfb4;margin:0}
+.live-tag{display:flex;align-items:center;gap:5px;background:#ffffff18;border:1px solid #ffffff20;padding:6px 9px;border-radius:30px;font-size:11px;color:#f7e8cd;white-space:nowrap}
+.live-dot{width:6px;height:6px;background:#d9bd88;border-radius:50%}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result-card{background:#ffffff0d;border:1px solid #ffffff22;border-radius:17px;padding:15px 13px}
+.result-label{display:flex;align-items:center;gap:7px;font-size:13px;color:#e8d7bd;font-weight:600}
+.result-label svg{width:17px;height:17px}
+.result-number{font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.5px;margin:10px 0 2px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.result-unit{font-size:12px;color:#d7c2a2}
+.result-foot{margin-top:13px;padding-top:12px;border-top:1px solid #ffffff22;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#e7d7bf;font-size:12px}
+.result-foot strong{color:#fff7e9;font-weight:700}
+.empty{border:1px dashed #d6c4a6;border-radius:17px;padding:22px 16px;text-align:center;color:var(--muted);margin-bottom:14px}
+.empty svg{width:31px;height:31px;color:var(--brown);margin-bottom:8px}
+.empty strong{display:block;color:var(--ink);margin-bottom:5px}
+.empty p{font-size:13px;line-height:1.6;margin:0}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 10px}
+.section-head h2{font-size:15px;margin:0;font-weight:800}
+.count{background:var(--soft);color:var(--brown2);padding:4px 8px;border-radius:20px;font-size:11px;font-weight:800}
+.recipe-list{display:grid;gap:8px}
+.recipe-item{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 13px;display:flex;align-items:center;gap:10px}
+.recipe-icon{width:39px;height:39px;flex-shrink:0;background:#f1e5d1;color:var(--brown);border-radius:13px;display:grid;place-items:center}
+.recipe-icon svg{width:20px;height:20px}
+.recipe-info{flex:1;min-width:0}
+.recipe-name{font-weight:800;overflow-wrap:anywhere}
+.recipe-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.recipe-actions{display:flex;gap:5px}
+.mini-btn{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--brown);display:grid;place-items:center}
+.mini-btn svg{width:16px;height:16px}
+.mini-btn.delete{color:var(--danger)}
+footer{text-align:center;color:#9a8e7c;font-size:11px;padding:19px 0 0}
+.overlay{position:fixed;inset:0;background:#211a13a6;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:10}
+.overlay.open{display:flex}
+.modal{width:min(100%,560px);max-height:90dvh;overflow:auto;background:var(--paper);border-radius:25px 25px 20px 20px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 20px 70px #0003}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-head h2{font-size:20px;margin:0}
+.close-btn{border:0;background:#f2e9da;color:var(--brown);border-radius:11px;width:36px;height:36px;font-size:22px}
+.field{margin-bottom:13px}
+.field label{display:block;font-weight:800;font-size:13px;margin-bottom:7px}
+.field input{font-size:16px}
+.field small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}
+.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:9px;margin-top:20px}
+.btn{border:0;border-radius:13px;padding:13px 15px;font-weight:800}
+.btn.primary{background:var(--brown);color:#fff8eb;flex:1}
+.btn.secondary{background:#f1e7d7;color:var(--brown2)}
+.btn.danger{background:#f8e7e3;color:var(--danger)}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,20px);background:#29251f;color:#fff8eb;padding:11px 16px;border-radius:30px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:20;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.backup-row{display:flex;gap:8px;margin-top:12px}
+.backup-row button{flex:1;font-size:12px}
+.file-input{display:none}
+@media(min-width:500px){.app{padding-top:22px;padding-bottom:18px}.overlay{align-items:center}.modal{border-radius:25px}}
+.quick-amounts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible;padding:8px 0 0}
+.quick-amounts::-webkit-scrollbar{display:none}
+.chip{min-width:0;padding:8px 4px}
+.recent-wrap{display:flex;align-items:center;gap:7px;min-width:0;margin-top:8px}
+#recentWrap[hidden]{display:none!important}
+.recent-label{font-size:11px;color:var(--muted);font-weight:800;white-space:nowrap}
+.recent-list{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1;padding:1px 0}
+.recent-list::-webkit-scrollbar{display:none}
+.recent-chip{flex:0 0 auto;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--line);border-radius:9px;background:#fffaf1;color:var(--brown2);font-size:11px;padding:6px 9px}
+.results .original-recipe{background:#f7eddd;color:var(--brown2);border:1px solid #e8d6b8;border-radius:12px;padding:8px 10px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px}
+.results .original-recipe span{color:#806d54}
+.results .original-recipe strong{font-size:12px;color:#6a4827;text-align:left}
+.results .result-foot.notes-foot{align-items:flex-start}
+.settings-search{margin:0 0 10px}
+.settings-search input{width:100%;border:1px solid var(--line);background:#fffdf9;border-radius:13px;padding:12px 13px;outline:0}
+.settings-search input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #c9a66b25}
+.export-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+.export-tools .btn{font-size:12px;padding:11px 8px}
+.export-image-btn{width:100%;margin-top:12px;padding:11px 14px;border:1px solid #d7bd91;border-radius:13px;background:linear-gradient(135deg,#f8ecd5,#ead6b4);color:#553a22;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px #1d120d12}
+.export-image-btn svg{width:18px;height:18px;flex-shrink:0}
+.export-image-btn:active{transform:scale(.99)}
+.recipe-item[hidden]{display:none!important}
+@media(max-height:760px){.app{padding-top:calc(6px + env(safe-area-inset-top));padding-bottom:calc(6px + env(safe-area-inset-bottom))}.home-view header{margin-bottom:7px}.logo{width:42px;height:42px}.home-content{gap:7px}.home-content .panel{padding:10px}.home-content .results{padding:12px}.home-content .result-number{font-size:27px}.home-content .result-card{padding:9px}.home-content .result-foot{margin-top:6px;padding-top:6px}.home-content .quick-amounts{padding-top:5px}.home-content .chip{padding:6px 4px}.recent-wrap{margin-top:5px}.home-content .results-head{margin-bottom:7px}.home-content .result-card{padding:8px}}
+
+
+/* Professional completion layer */
+.home-search{margin:0 0 8px;position:relative;z-index:5}
+.home-search input{width:100%;border:1px solid var(--line);background:#fffdf9;border-radius:13px;padding:10px 12px;outline:0;color:var(--ink)}
+.home-search input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #c9a66b25}
+.search-results{position:absolute;top:calc(100% + 5px);right:0;left:0;max-height:min(44vh,330px);overflow:auto;overscroll-behavior:contain;background:var(--paper);border:1px solid #ddc9a9;border-radius:15px;box-shadow:0 14px 32px rgba(45,29,13,.2);padding:5px;z-index:30}
+.search-results[hidden]{display:none!important}
+.search-result{width:100%;display:flex;align-items:center;gap:10px;text-align:right;padding:10px;border:0;border-radius:11px;background:transparent;color:var(--ink)}
+.search-result+.search-result{border-top:1px solid #f0e7d8}
+.search-result:active,.search-result.is-active{background:#f3e7d2}
+.search-result-icon{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#efe2cb;color:var(--brown);display:grid;place-items:center}
+.search-result-icon svg{width:18px;height:18px}
+.search-result-info{flex:1;min-width:0}
+.search-result-name{font-size:13px;font-weight:800;overflow-wrap:anywhere}.search-highlight{background:#e8d2a9;color:#3f2a1b;border-radius:3px;padding:0 1px}
+.search-result-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.search-result-tags{font-size:10px;color:var(--brown);white-space:nowrap}
+.search-empty{padding:17px 10px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+.search-hint{font-size:10px;color:var(--muted);padding:6px 9px 4px}
+.home-filter-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-bottom:10px}
+.home-filter-row select{padding:9px 10px;font-size:13px}
+.utility-btn{border:1px solid var(--line);background:#fffaf1;color:var(--brown2);border-radius:12px;padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap}
+.utility-btn[aria-pressed="true"]{background:var(--soft);border-color:var(--gold)}
+.recipe-item.is-favorite .recipe-name:after{content:"  ★";color:var(--gold);font-size:12px}
+.recipe-item.is-pinned{border-color:#c9a66b;box-shadow:0 4px 14px #76522f10}
+.recipe-category{display:inline-flex;margin-top:5px;background:#f2e7d5;color:var(--brown2);border-radius:7px;padding:3px 7px;font-size:10px;font-weight:700}
+.recipe-actions .mini-btn[aria-label*="مفضلة"]{color:#b38a3e}
+.result-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+.result-tools button{border:1px solid #ffffff32;background:#ffffff12;color:#fff8eb;border-radius:11px;padding:10px 7px;font-size:12px;font-weight:800}
+.result-tools button:active{transform:scale(.99)}
+.data-health{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px}
+.health-item{background:#faf4e9;border-radius:11px;padding:10px}
+.health-item span{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.health-item strong{font-size:14px;color:var(--brown2);overflow-wrap:anywhere}
+.utility-panel{background:#faf4e9;border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:10px}
+.utility-panel h3{font-size:15px;margin:0 0 8px}
+.utility-panel p{font-size:13px;line-height:1.6;color:var(--muted);margin:5px 0}
+.utility-panel .field{margin-bottom:10px}
+.utility-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.utility-actions .btn{flex:1;min-width:100px}
+.utility-table{width:100%;border-collapse:collapse;font-size:12px}
+.utility-table th,.utility-table td{padding:9px 5px;border-bottom:1px solid var(--line);text-align:right}
+.utility-table th{color:var(--muted);font-weight:700}
+.utility-table .history-use{border:1px solid #d9c29c;background:#f3e7d2;color:var(--brown2);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;white-space:nowrap}
+.utility-panel .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.compare-card{background:#fffdf8;border:1px solid var(--line);border-radius:13px;padding:12px;min-width:0}
+.compare-card h4{font-size:14px;margin:0 0 10px;overflow-wrap:anywhere}
+.compare-value{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:8px 0;font-size:12px}
+.compare-value strong{color:var(--brown2);white-space:nowrap}
+.utility-panel .field select{width:100%}
+@media(max-width:380px){.recipe-actions{gap:3px}.mini-btn{width:30px;height:30px}.compare-grid{grid-template-columns:1fr!important}}
+
+@media(max-height:760px){.home-search input{padding:8px 10px}.home-filter-row{margin-bottom:6px}.home-filter-row select{padding:7px 8px}.home-content{gap:6px}}
+
+
+
+/* Responsive viewport fix: never clip controls on short screens or mobile browsers */
+html, body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body { min-height: 100vh; min-height: 100dvh; }
+.app {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: visible;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+.view { min-height: auto; flex: 0 0 auto; width: 100%; }
+.view.active { display: flex; flex-direction: column; }
+.home-view { overflow: visible; }
+.home-content { flex: 0 0 auto; min-height: auto; }
+.settings-view { overflow: visible; overscroll-behavior: auto; padding-bottom: 18px; }
+@media (max-width: 500px) {
+  .app { padding-left: 13px; padding-right: 13px; }
+  .home-view header { margin-bottom: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="view home-view active" id="homeView">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10l-1 11H8L7 8Z"/><path d="M9 5c-1-1 1-2 0-3M13 5c-1-1 1-2 0-3M17 5c-1-1 1-2 0-3"/><path d="M17 10h2.2a2.3 2.3 0 0 1 0 4.6H16"/></svg></div>
+        <div><div class="eyebrow">الشاي على اصولة</div><h1>وزنيات محمد سالم</h1><div class="header-note"></div></div>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="فتح لوحة التحكم" title="لوحة التحكم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z" transform="translate(-1 -1) scale(.96)"/></svg></button>
+    </header>
+    <div class="home-content">
+      <div class="section-label"><span></span><small id="recipeCountTop">0 وصفات محفوظة</small></div>
+      <section class="panel">
+        <div class="home-search">
+          <input id="homeRecipeSearch" type="search" placeholder="اكتب اسم الشاي للبحث الفوري…" aria-label="البحث الفوري عن نوع الشاي" aria-controls="homeSearchResults" aria-autocomplete="list" autocomplete="off">
+          <div class="search-results" id="homeSearchResults" role="listbox" aria-label="نتائج البحث" hidden></div>
+        </div>
+        <div class="home-filter-row">
+          <select id="homeCategoryFilter" aria-label="تصفية حسب التصنيف"><option value="">كل التصنيفات</option></select>
+          <button type="button" class="utility-btn" id="favoritesOnlyBtn" aria-pressed="false">☆ المفضلة</button>
+        </div>
+        <div class="recipe-top">
+          <div class="select-wrap"><select id="recipeSelect" aria-label="اختر نوع الشاي"><option value="">اختر وصفة الشاي</option></select></div>
+        </div>
+        <div class="recent-wrap" id="recentWrap" hidden><span class="recent-label">الأخيرة</span><div class="recent-list" id="recentList"></div></div>
+        <div class="water-head"><label for="waterInput">كمية الماء</label><span class="unit-hint">بالملليلتر</span></div>
+        <div class="water-input-wrap"><input id="waterInput" type="number" inputmode="decimal" min="1" max="1000000" step="any" value="500" aria-label="كمية الماء بالملليلتر"><span>مل</span></div>
+        <div class="quick-amounts" aria-label="كميات سريعة">
+          <button class="chip active" data-water="500">500 مل</button><button class="chip" data-water="600">600 مل</button><button class="chip" data-water="700">700 مل</button><button class="chip" data-water="800">800 مل</button>
+          <button class="chip" data-water="900">900 مل</button><button class="chip" data-water="1300">1300 مل</button><button class="chip" data-water="1500">1500 مل</button><button class="chip" data-water="1700">1700 مل</button>
+        </div>
+      </section>
+      <div id="resultsArea">
+        <div class="empty" id="emptyState"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10l-1 11H8L7 8Z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2"/></svg><strong>أضف أول وزنية لك</strong><p>سجّل كمية ورق الشاي والسكر لكل لتر،<br>وسنحسب لك المقادير تلقائياً لأي كمية ماء.</p></div>
+      </div>
+    </div>
+  </main>
+  <main class="view settings-view" id="settingsView">
+    <div class="settings-header">
+      <button class="icon-btn back-link" id="homeBtn" aria-label="العودة للرئيسية" title="العودة">‹</button>
+      <div><div class="eyebrow">TEA NOTES</div><h1>لوحة التحكم</h1></div>
+    </div>
+    <p class="settings-intro">إدارة الوزنيات والملاحظات، وتصديرها أو استيرادها مع نسخة احتياطية. تغييراتك تُحفظ على هذا الجهاز.</p>
+    <button class="btn primary" id="addRecipeBtn" style="width:100%;margin-bottom:12px">＋ إضافة وزنية جديدة</button>
+    <div class="section-head"><h2>الوزنيات المحفوظة</h2><span class="count" id="recipeCount">0 وصفات</span></div>
+    <div class="settings-search"><input id="recipeSearch" type="search" placeholder="ابحث بالاسم أو التصنيف أو الملاحظات…" aria-label="البحث عن وزنية"><div id="recipeSearchCount" class="search-hint" aria-live="polite"></div></div>
+    <div class="recipe-list" id="recipeList"></div>
+    <div class="section-head"><h2>حالة البيانات</h2></div>
+    <section class="data-health" id="dataHealth" aria-live="polite"></section>
+    <div class="section-head"><h2>أدوات إضافية</h2></div>
+    <div class="export-tools">
+      <button class="btn secondary" id="historyBtn">سجل الاستخدام</button>
+      <button class="btn secondary" id="precisionBtn">دقة النتائج</button>
+      <button class="btn secondary" id="compareBtn">مقارنة وزنيتين</button>
+    </div>
+    <div class="section-head"><h2>تصدير واستيراد البيانات</h2></div>
+    <div class="export-tools">
+      <button class="btn secondary" id="exportTxtBtn">تصدير الكل TXT</button>
+      <button class="btn secondary" id="exportSelectedTxtBtn">تصدير المحددة TXT</button>
+      <button class="btn secondary" id="exportBtn">نسخة احتياطية JSON</button>
+      <button class="btn secondary" id="importBtn">استيراد JSON</button>
+      <input type="file" id="importFile" class="file-input" accept="application/json,.json">
+    </div>
+    <button class="btn danger" id="clearAllBtn" style="width:100%">حذف جميع الوصفات</button>
+    <footer>تُحفظ وصفاتك على هذا الجهاز فقط · لا تحتاج إلى حساب</footer>
+  </main>
+</div>
+
+<div class="overlay" id="recipeModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <form class="modal" id="recipeForm">
+    <div class="modal-head"><h2 id="modalTitle">إضافة وزنية جديدة</h2><button type="button" class="close-btn" id="closeModal" aria-label="إغلاق">×</button></div>
+    <div class="field"><label for="recipeName">اسم الشاي</label><input id="recipeName" required maxlength="60" placeholder="مثال: شاي أحمر بالهيل"></div>
+    <div class="two-fields">
+      <div class="field"><label for="teaPerLiter">ورق الشاي / لتر</label><input id="teaPerLiter" required type="number" min="0" max="10000" step="any" inputmode="decimal" placeholder="مثال: 12"><small>بالغرام لكل 1000 مل</small></div>
+      <div class="field"><label for="sugarPerLiter">السكر / لتر</label><input id="sugarPerLiter" required type="number" min="0" max="10000" step="any" inputmode="decimal" placeholder="مثال: 80"><small>بالغرام لكل 1000 مل</small></div>
+    </div>
+    <div class="field"><label for="recipeCategory">التصنيف</label><input id="recipeCategory" maxlength="40" placeholder="مثال: شاي أحمر، توليفة خاصة"></div>
+    <div class="field"><label for="recipeNotes">ملاحظات (اختياري)</label><input id="recipeNotes" maxlength="180" placeholder="مثال: نقع 5 دقائق"></div>
+    <div class="modal-actions"><button class="btn primary" type="submit" id="saveRecipeBtn">حفظ الوزنية</button><button class="btn secondary" type="button" id="cancelModal">إلغاء</button></div>
+  </form>
+</div>
+
+<div class="overlay" id="utilityModal" role="dialog" aria-modal="true" aria-labelledby="utilityTitle">
+  <section class="modal">
+    <div class="modal-head"><h2 id="utilityTitle">أدوات الوزنيات</h2><button type="button" class="close-btn" id="closeUtility" aria-label="إغلاق">×</button></div>
+    <div id="utilityContent"></div>
+    <div class="modal-actions"><button class="btn secondary" type="button" id="cancelUtility">إغلاق</button></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+  const STORAGE_KEY = 'teaWeightsRecipes.v4';
+  const SELECTED_KEY = 'teaWeightsSelected.v4';
+  const WATER_KEY = 'teaWeightsWater.v4';
+  const RECENT_KEY = 'teaWeightsRecent.v1';
+  const $ = id => document.getElementById(id);
+  let recipes = [];
+  const starterRecipes = [
+    ['الوزة حديد',12.5,57],['وجار',12.5,57],['الوزة بو شيبة',13,57],['أبو جبل',13,57],
+    ['⭐️المنيس اصفر',13,57],['⭐️الصمان الذهبي',13,57],['شيهانة FBOP1',13,57],['سنقيل',13,57],
+    ['⭐️أبو طير',13,57],['البطتين',13,57],['الفخم BOP1',13.5,57],['الوزة بلاستيك',14,57],
+    ['المنيس الابيض',13.5,60],['⭐️المنيس ازرق',13,55],['المنيس ازرق - 👑',13,53],
+    ['⭐️ماركة السرور',13.5,60],['⭐️كشتة',13.5,58],['التحو - ذهبي',13.5,60],['⭐️كرزة',13,58],
+    ['الصمان الدائري',14,58],['الوزة OP1',14,60],['⭐️المصمك',13.5,59],['شيهانة OP1',13.5,60],
+    ['الاولين OPA',13.5,57],['999',14,60],['قرناس',14,60],['الصمان VIP',14,60],
+    ['سنقيل OPA',14,60],['الوزة OPA',14,58],['ازركي اذري',14.5,58],['راس الحصان',15,57],
+    ['توليفتي',12.5,57],['استكنان',16,60],['زهرة الشاي',16,60],['خدير OP1',16,60],
+    ['بدير',13,55],['خبت',13,60],['حاجم bop',13,57]
+  ].map((r,i)=>({id:'starter_'+(i+1),name:r[0],tea:r[1],sugar:r[2],category:'عام',favorite:false,pinned:false,notes:r[0]==='⭐️المنيس ازرق'?'النطاق الأصلي المسجل: الشاي 13–13.5 غ، السكر 55–60 غ لكل لتر. الحساب الحالي يستخدم الحد الأدنى.':''}));
+  let editingId = null;
+  let toastTimer;
+  const icons = {
+    leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4C10 4 4 8 4 15a5 5 0 0 0 5 5c7 0 11-6 11-16Z"/><path d="M3 21c4-6 8-9 13-12"/></svg>',
+    edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z"/></svg>',
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/></svg>',
+    tea:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10l-1 11H8L7 8Z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2M9 5c-1-1 1-2 0-3m4 3c-1-1 1-2 0-3"/></svg>'
+  };
+  function uid(){return 'r_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+  function num(v){return Number.isFinite(Number(v))?Number(v):0}
+  function fmt(v){
+    if(!Number.isFinite(v)) return '—';
+    const rounded = Math.round((v + Number.EPSILON)*10)/10;
+    return rounded.toLocaleString('en-US',{maximumFractionDigits:1});
+  }
+  function plural(n,one,two,few,many){n=Math.abs(n);const x=n%100;if(x>=11&&x<=99)return many;switch(n%10){case 1:return one;case 2:return two;case 3:case 4:return few;default:return many}}
+  function countText(n){return `${n} ${plural(n,'وصفة','وصفتان','وصفات','وصفة')}`}
+  function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(recipes));return true}catch(e){showToast('تعذر الحفظ: مساحة المتصفح غير كافية. صدّر نسخة احتياطية ثم احذف بيانات غير ضرورية.');return false}}
+  function load(){
+    try{
+      const stored=localStorage.getItem(STORAGE_KEY);
+      if(stored===null){recipes=starterRecipes.map(r=>({...r}));localStorage.setItem(STORAGE_KEY,JSON.stringify(recipes))}
+      else {
+        const parsed=JSON.parse(stored);
+        recipes=Array.isArray(parsed)?parsed.filter(r=>r&&typeof r.name==='string'&&Number.isFinite(Number(r.tea))&&Number.isFinite(Number(r.sugar))).map(r=>({...r,id:r.id||uid(),tea:num(r.tea),sugar:num(r.sugar),notes:r.notes||'',category:r.category||'عام',favorite:Boolean(r.favorite),pinned:Boolean(r.pinned)})):[];
+      }
+    }catch(e){recipes=starterRecipes.map(r=>({...r}))}
+    let water='';try{water=localStorage.getItem(WATER_KEY)||''}catch(e){}if(water && Number(water)>0 && Number(water)<=1000000)$('waterInput').value=water;
+  }
+  function selected(){return recipes.find(r=>r.id===$('recipeSelect').value)||null}
+  const HISTORY_KEY='teaWeightsHistory.v1', PRECISION_KEY='teaWeightsPrecision.v1', LAST_BACKUP_KEY='teaWeightsLastBackup.v1';
+  let favoritesOnly=false;
+  function precision(){const v=Number(localStorage.getItem(PRECISION_KEY));return [0,1,2].includes(v)?v:1}
+  function fmtResult(v){if(!Number.isFinite(v))return '—';return v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:precision()})}
+  function getHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+  function addHistory(r,water){if(!r||!Number.isFinite(water)||!(water>0))return;try{const arr=getHistory();arr.unshift({recipeId:r.id,name:r.name,tea:fmtResult(r.tea*water/1000),sugar:fmtResult(r.sugar*water/1000),water:fmt(water),at:new Date().toISOString()});localStorage.setItem(HISTORY_KEY,JSON.stringify(arr.slice(0,30)));localStorage.setItem('teaWeightsLastUsed.v1',new Date().toISOString())}catch(e){showToast('تعذر حفظ سجل الاستخدام')}}
+  function populateCategories(){
+    const sel=$('homeCategoryFilter');if(!sel)return;const current=sel.value;
+    const cats=[...new Set(recipes.map(r=>(r.category||'عام').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+    sel.innerHTML='<option value="">كل التصنيفات</option>'+cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    if(cats.includes(current))sel.value=current;
+  }
+  function normalizeSearch(value){
+    return String(value||'').normalize('NFKD').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/[ؤئ]/g,m=>m==='ؤ'?'و':'ي').replace(/[ة]/g,'ه').replace(/[ـ]/g,'').toLocaleLowerCase('ar').replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
+  }
+  function highlightSearchName(name,query){
+    const tokens=normalizeSearch(query).split(' ').filter(Boolean);if(!tokens.length)return escapeHtml(name);
+    return String(name).split(/(\s+)/).map(part=>{if(!part.trim())return part;const normalized=normalizeSearch(part);return tokens.some(t=>normalized.includes(t))?`<mark class=\"search-highlight\">${escapeHtml(part)}</mark>`:escapeHtml(part)}).join('');
+  }
+  let searchActiveIndex=-1;
+  function getHomeSearchMatches(){
+    const q=normalizeSearch($('homeRecipeSearch')?.value||'');
+    const cat=$('homeCategoryFilter')?.value||'';
+    const tokens=q.split(/\s+/).filter(Boolean);
+    return recipes.filter(r=>{
+      if(cat&&(r.category||'عام')!==cat)return false;
+      if(favoritesOnly&&!r.favorite)return false;
+      const haystack=normalizeSearch([r.name,r.category,r.notes].join(' '));
+      return tokens.every(token=>haystack.includes(token));
+    }).sort((a,b)=>{
+      const score=r=>{const n=normalizeSearch(r.name),hay=normalizeSearch([r.name,r.category,r.notes].join(' '));let x=0;if(q&&n===q)x+=1000;if(q&&n.startsWith(q))x+=300;if(q&&n.includes(q))x+=150;for(const token of tokens){if(n.split(' ').some(w=>w.startsWith(token)))x+=35;else if(n.includes(token))x+=20;else if(hay.includes(token))x+=8;}if(r.pinned)x+=4;if(r.favorite)x+=2;return x};
+      return score(b)-score(a)||a.name.localeCompare(b.name,'ar');
+    });
+  }
+  function renderHomeSearchSuggestions(force=false){
+    const input=$('homeRecipeSearch'),box=$('homeSearchResults');if(!input||!box)return;
+    const q=input.value.trim();
+    if(!force&&!q){box.hidden=true;input.setAttribute('aria-expanded','false');searchActiveIndex=-1;return}
+    const matches=getHomeSearchMatches().slice(0,40);
+    searchActiveIndex=-1;
+    if(!matches.length){box.innerHTML='<div class="search-empty">لا توجد نتائج مطابقة.<br>جرّب كتابة جزء من الاسم أو غيّر التصنيف.</div>';box.hidden=false;input.setAttribute('aria-expanded','true');return}
+    box.innerHTML=(q?'<div class="search-hint">'+matches.length+(getHomeSearchMatches().length>40?' من النتائج':'')+' · اختر نوع الشاي للحساب</div>':'<div class="search-hint">جميع أنواع الشاي · اختر نوعًا للبدء</div>')+matches.map(r=>`<button type="button" class="search-result" role="option" data-search-recipe="${escapeHtml(r.id)}" aria-selected="false"><span class="search-result-icon">${icons.leaf}</span><span class="search-result-info"><span class="search-result-name">${highlightSearchName(r.name,q)}</span><span class="search-result-meta">شاي ${fmt(r.tea)} غ · سكر ${fmt(r.sugar)} غ / لتر${r.category&&r.category!=='عام'?' · '+escapeHtml(r.category):''}</span></span><span class="search-result-tags">${r.pinned?'مثبتة ':''}${r.favorite?'★':''}</span></button>`).join('');
+    box.hidden=false;input.setAttribute('aria-expanded','true');
+    box.querySelectorAll('[data-search-recipe]').forEach(btn=>btn.addEventListener('click',()=>chooseHomeRecipe(btn.dataset.searchRecipe)));
+  }
+  function chooseHomeRecipe(id){
+    if(!recipes.some(r=>r.id===id))return;
+    $('recipeSelect').value=id;localStorage.setItem(SELECTED_KEY,id);rememberRecent(id);
+    $('homeRecipeSearch').value='';$('homeSearchResults').hidden=true;$('homeRecipeSearch').setAttribute('aria-expanded','false');
+    renderResults();updateActiveChips();applyHomeFilters();addHistory(selected(),num($('waterInput').value));
+  }
+  function applyHomeFilters(){
+    $('favoritesOnlyBtn')?.setAttribute('aria-pressed',String(favoritesOnly));
+    renderHomeSearchSuggestions(false);
+  }
+  function updateDataHealth(){
+    const el=$('dataHealth');if(!el)return;const last=localStorage.getItem(LAST_BACKUP_KEY),used=localStorage.getItem('teaWeightsLastUsed.v1');
+    const dateText=s=>s?new Date(s).toLocaleString('ar-OM',{dateStyle:'medium',timeStyle:'short'}):'لم يُسجّل بعد';
+    el.innerHTML=`<div class="health-item"><span>عدد الوزنيات</span><strong>${recipes.length}</strong></div><div class="health-item"><span>آخر نسخة تم تجهيزها</span><strong>${last?escapeHtml(dateText(last)):'لم تُنشأ بعد'}</strong></div><div class="health-item"><span>آخر استخدام</span><strong>${escapeHtml(dateText(used))}</strong></div><div class="health-item"><span>طريقة الحفظ</span><strong>على هذا الجهاز</strong></div>`;
+  }
+  function rememberRecent(id){
+    if(!id)return;
+    let recent=[];try{recent=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]')}catch(e){}
+    recent=[id,...recent.filter(x=>x!==id)].filter(x=>recipes.some(r=>r.id===x)).slice(0,5);
+    localStorage.setItem(RECENT_KEY,JSON.stringify(recent));renderRecent();
+  }
+  function renderRecent(){
+    const wrap=$('recentWrap'),list=$('recentList');if(!wrap||!list)return;
+    let recent=[];try{recent=JSON.parse(localStorage.getItem(RECENT_KEY)||'[]')}catch(e){}
+    recent=recent.filter(id=>recipes.some(r=>r.id===id)).slice(0,5);list.innerHTML='';wrap.hidden=!recent.length;
+    recent.forEach(id=>{const r=recipes.find(x=>x.id===id);if(!r)return;const b=document.createElement('button');b.type='button';b.className='recent-chip';b.textContent=r.name;b.title=r.name;b.addEventListener('click',()=>chooseHomeRecipe(r.id));list.appendChild(b)});
+  }
+  function updateSelect(chooseId){
+    const sel=$('recipeSelect'),prev=chooseId||sel.value||localStorage.getItem(SELECTED_KEY)||'';
+    sel.innerHTML='<option value="">اختر وصفة الشاي</option>';
+    recipes.slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name;sel.appendChild(o)});
+    if(recipes.some(r=>r.id===prev))sel.value=prev;
+    else if(recipes.length)sel.value=recipes[0].id;
+    localStorage.setItem(SELECTED_KEY,sel.value||'');
+    $('recipeCountTop').textContent=`${recipes.length} نوع شاي`;
+    $('recipeCount').textContent=`${recipes.length} نوع`;
+    renderResults();renderList();renderRecent();populateCategories();applyHomeFilters();
+  }
+  function renderResults(){
+    const area=$('resultsArea'),r=selected(),water=num($('waterInput').value);
+    if(!r){area.innerHTML='<div class="empty" id="emptyState">'+icons.tea+'<strong>اختر وزنية أو أضف واحدة</strong><p>بعد اختيار الوصفة، تظهر مقادير ورق الشاي والسكر حسب كمية الماء.</p></div>';return}
+    if(!(water>0)){area.innerHTML='<div class="empty">'+icons.tea+'<strong>أدخل كمية ماء صحيحة</strong><p>يجب أن تكون كمية الماء أكبر من صفر.</p></div>';return}
+    const factor=water/1000,tea=r.tea*factor,sugar=r.sugar*factor;
+    area.innerHTML=`<section class="results">
+      <div class="results-head"><div><h2>${escapeHtml(r.name)}</h2><p>المقادير المطلوبة لكمية الماء المحددة</p></div><div class="live-tag"><span class="live-dot"></span>حساب مباشر</div></div>
+      <div class="result-grid">
+        <div class="result-card"><div class="result-label">${icons.leaf}<span>ورق الشاي</span></div><div class="result-number">${fmtResult(tea)}</div><div class="result-unit">غرام</div></div>
+        <div class="result-card"><div class="result-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5"/></svg><span>السكر</span></div><div class="result-number">${fmtResult(sugar)}</div><div class="result-unit">غرام</div></div>
+      </div>
+      <div class="result-foot"><span>كمية الماء المستخدمة</span><strong>${fmt(water)} مل</strong></div>
+      <div class="original-recipe"><span>الوزنية الأصلية لكل لتر</span><strong>شاي ${fmt(r.tea)} غ · سكر ${fmt(r.sugar)} غ</strong></div>
+      ${r.notes?`<div class="result-foot notes-foot"><span>ملاحظات</span><strong>${escapeHtml(r.notes)}</strong></div>`:''}
+      <div class="result-tools"><button type="button" id="copyRecipeBtn">نسخ المقادير</button><button type="button" id="reverseCalcBtn">حساب عكسي</button></div>
+      <button type="button" class="export-image-btn" id="exportRecipeImageBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>تصدير الوزنية كصورة</span></button>
+    </section>`;
+    $('exportRecipeImageBtn')?.addEventListener('click',exportRecipeImage);
+    $('copyRecipeBtn')?.addEventListener('click',copyCurrentRecipe);
+    $('reverseCalcBtn')?.addEventListener('click',showReverseCalc);
+  }
+  function roundedRect(ctx,x,y,w,h,r){
+    const radius=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+radius,y);ctx.arcTo(x+w,y,x+w,y+h,radius);ctx.arcTo(x+w,y+h,x,y+h,radius);ctx.arcTo(x,y+h,x,y,radius);ctx.arcTo(x,y,x+w,y,radius);ctx.closePath();
+  }
+  function canvasText(ctx,text,x,y,size,color,weight=600,align='right'){
+    ctx.font=`${weight} ${size}px Tajawal, sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.direction='rtl';ctx.fillText(String(text),x,y);
+  }
+  function wrapCanvasText(ctx,text,maxWidth,font){
+    ctx.font=font;ctx.direction='rtl';const words=String(text).split(/\s+/);const lines=[];let line='';
+    for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test;}
+    if(line)lines.push(line);return lines;
+  }
+  async function exportRecipeImage(){
+    const r=selected(),water=Number($('waterInput').value);
+    if(!r){showToast('اختر نوع الشاي أولاً');return;}
+    if(!Number.isFinite(water)||water<=0||water>1000000){showToast('أدخل كمية ماء صحيحة');return;}
+    try{
+      if(document.fonts?.load) await Promise.all([
+        document.fonts.load('800 52px Tajawal'),
+        document.fonts.load('700 32px Tajawal'),
+        document.fonts.load('500 24px Tajawal')
+      ]);
+      const SIZE=1200,canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=SIZE;
+      const ctx=canvas.getContext('2d');
+      if(!ctx) throw new Error('Canvas context unavailable');
+      const C={deep:'#352316',brown:'#654326',brown2:'#76522f',gold:'#c9a66b',goldLight:'#ead4a8',paper:'#fbf6ec',paper2:'#f4ead8',ink:'#34271c',muted:'#88745c',line:'#dfcba9',white:'#fffdf8'};
+      const round=(x,y,w,h,rad,fill,stroke=null,lineWidth=1)=>{
+        roundedRect(ctx,x,y,w,h,rad);if(fill){ctx.fillStyle=fill;ctx.fill();}
+        if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}
+      };
+      const shadowRound=(x,y,w,h,rad,fill,shadow='rgba(18,10,4,.22)',blur=22,offset=8)=>{
+        ctx.save();ctx.shadowColor=shadow;ctx.shadowBlur=blur;ctx.shadowOffsetY=offset;round(x,y,w,h,rad,fill);ctx.restore();
+      };
+      const fitText=(text,maxWidth,startSize,minSize,weight=800)=>{
+        let size=startSize;ctx.font=`${weight} ${size}px Tajawal, sans-serif`;
+        while(size>minSize&&ctx.measureText(String(text)).width>maxWidth){size-=2;ctx.font=`${weight} ${size}px Tajawal, sans-serif`;}
+        return size;
+      };
+      const centered=(text,x,y,size,color,weight=600)=>canvasText(ctx,text,x,y,size,color,weight,'center');
+
+      // Rich brown backdrop with restrained light falloff.
+      const bg=ctx.createLinearGradient(0,0,SIZE,SIZE);
+      bg.addColorStop(0,'#76522f');bg.addColorStop(.48,'#563921');bg.addColorStop(1,'#342216');
+      ctx.fillStyle=bg;ctx.fillRect(0,0,SIZE,SIZE);
+      const glow=ctx.createRadialGradient(600,170,20,600,170,720);
+      glow.addColorStop(0,'rgba(239,211,162,.22)');glow.addColorStop(1,'rgba(239,211,162,0)');
+      ctx.fillStyle=glow;ctx.fillRect(0,0,SIZE,SIZE);
+      // Main paper surface: generous and consistent 5% outer margin.
+      shadowRound(48,48,1104,1104,38,'#fbf6ec','rgba(20,11,4,.32)',30,12);
+      round(62,62,1076,1076,30,null,'rgba(201,166,107,.75)',2);
+      // Top accent bar.
+      round(500,82,200,7,4,C.gold);
+      centered('الشاي على أصوله',600,126,22,C.muted,700);
+      centered('وزنيات محمد سالم',600,174,36,C.ink,800);
+      // Recipe title panel, dynamically fitted to avoid clipping.
+      const titleY=210,titleH=124;
+      round(112,titleY,976,titleH,24,'#f2e6d1','#e4d0ad',1.5);
+      round(142,titleY+22,5,titleH-44,3,C.gold);
+      const nameLines=wrapCanvasText(ctx,r.name,850,'800 42px Tajawal, sans-serif');
+      const visibleName=nameLines.slice(0,2);
+      const titleSize=fitText(visibleName.length===1?visibleName[0]:'',850,42,28,800);
+      if(visibleName.length===1){centered(visibleName[0],600,titleY+76,titleSize,C.deep,800);}
+      else {
+        const size=Math.min(34,fitText(visibleName.join(' '),850,34,25,800));
+        centered(visibleName[0],600,titleY+55,size,C.deep,800);
+        centered(visibleName[1]+(nameLines.length>2?'…':''),600,titleY+96,size,C.deep,800);
+      }
+      // Water amount: secondary to the recipe quantities, but visually clear.
+      const waterY=365;
+      shadowRound(250,waterY,700,82,22,'#ead8b7','rgba(70,43,18,.13)',12,4);
+      round(250,waterY,700,82,22,null,'#d5bb8d',1.5);
+      centered('كمية الماء',600,waterY+29,19,C.muted,700);
+      const waterLabel=`${fmt(water)} مل`;
+      centered(waterLabel,600,waterY+62,29,C.deep,800);
+      // Two balanced hero cards. The tea amount gets a subtle emphasis.
+      const cardsY=478,cardW=452,cardH=300,gap=24,left=136,right=612;
+      function resultCard(x,label,value,featured){
+        const fill=featured?'#684728':'#76522f';
+        shadowRound(x,cardsY,cardW,cardH,26,fill,'rgba(47,29,13,.24)',18,7);
+        round(x,cardsY,cardW,cardH,26,null,featured?'#d7b77e':'rgba(255,246,227,.38)',1.5);
+        // restrained top highlight
+        round(x+cardW/2-28,cardsY+22,56,5,3,C.goldLight);
+        centered(label,x+cardW/2,cardsY+77,25,'#f4e5c9',700);
+        const valueText=String(value),valueSize=fitText(valueText,cardW-54,82,48,800);
+        centered(valueText,x+cardW/2,cardsY+190,valueSize,C.white,800);
+        centered('غرام',x+cardW/2,cardsY+235,20,'#e6d1ac',600);
+        // Small separator anchors the layout without visual clutter.
+        ctx.save();ctx.strokeStyle='rgba(255,248,234,.23)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+76,cardsY+258);ctx.lineTo(x+cardW-76,cardsY+258);ctx.stroke();ctx.restore();
+      }
+      resultCard(right,'ورق الشاي',fmtResult(r.tea*water/1000),true);
+      resultCard(left,'السكر',fmtResult(r.sugar*water/1000),false);
+      // Original recipe is intentionally smaller and quieter than the live result.
+      const originalY=806;
+      round(164,originalY,872,76,18,'#f0e4cf','#e1ceb0',1);
+      centered('الوزنية الأصلية لكل لتر',600,originalY+27,17,C.muted,600);
+      const originalText=`شاي ${fmt(r.tea)} غ   ·   سكر ${fmt(r.sugar)} غ`;
+      centered(originalText,600,originalY+55,fitText(originalText,800,22,17,700),C.brown,700);
+      // Notes are optional and safely constrained to their own area.
+      if(r.notes){
+        const noteY=900;
+        centered('ملاحظات',600,noteY,17,C.muted,700);
+        const lines=wrapCanvasText(ctx,r.notes,820,'500 19px Tajawal, sans-serif').slice(0,2);
+        if(lines.length){
+          round(170,noteY+14,860,Math.max(52,lines.length*27+18),15,'#f6eddf','#e8dcc7',1);
+          lines.forEach((line,i)=>centered(line,600,noteY+47+i*25,fitText(line,810,19,15,500),C.ink,500));
+          if(wrapCanvasText(ctx,r.notes,820,'500 19px Tajawal, sans-serif').length>2){
+            // The ellipsis sits inside the notes panel without expanding the layout.
+            centered('…',600,noteY+47+lines.length*25,16,C.muted,500);
+          }
+        }
+      }
+      // Footer and fine divider finish the composition.
+      ctx.save();ctx.strokeStyle='#dfcba9';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(330,1082);ctx.lineTo(870,1082);ctx.stroke();ctx.restore();
+      centered('وزنيات محمد سالم',600,1110,18,C.muted,700);
+
+      const safeName=String(r.name).replace(/[\\/:*?"<>|]/g,'-').slice(0,70);
+      const filename=`وزنية-${safeName}-${fmt(water)}مل.png`;
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+      if(!blob){openCanvasImage(canvas,filename);return;}
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1800);
+      showToast('تم تجهيز صورة الوزنية 1200 × 1200');
+    }catch(err){console.error(err);showToast('تعذر إنشاء الصورة. حاول مرة أخرى');}
+  }
+  function openCanvasImage(canvas,filename){
+    try{const data=canvas.toDataURL('image/png');const win=window.open();if(win){win.document.write(`<title>${escapeHtml(filename)}</title><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#f6f0e5;display:grid;place-items:center;min-height:100vh"><img alt="صورة الوزنية" src="${data}" style="width:100%;height:auto;max-width:600px"></body>`);showToast('افتح الصورة ثم احفظها على جهازك')}else showToast('تعذر فتح الصورة؛ تحقق من السماح بالنوافذ المنبثقة')}catch(e){showToast('تعذر إنشاء الصورة')}
+  }
+  function renderList(){
+    const list=$('recipeList');list.innerHTML='';
+    if(!recipes.length){list.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:13px 4px 5px">لا توجد وصفات محفوظة حتى الآن.</div>';return}
+    const query=normalizeSearch($('recipeSearch')?.value||'');
+    const tokens=query.split(' ').filter(Boolean);
+    const visible=recipes.slice().sort((a,b)=>Number(Boolean(b.pinned))-Number(Boolean(a.pinned))||Number(Boolean(b.favorite))-Number(Boolean(a.favorite))||a.name.localeCompare(b.name,'ar')).filter(r=>{const hay=normalizeSearch([r.name,r.category,r.notes].join(' '));return tokens.every(t=>hay.includes(t));});
+    const countEl=$('recipeSearchCount');if(countEl)countEl.textContent=`${visible.length} من ${recipes.length}`;
+    if(!visible.length){list.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:13px 4px 5px">لا توجد وزنيات مطابقة للبحث.</div>';return}
+    visible.forEach(r=>{
+      const item=document.createElement('div');item.className='recipe-item';
+      item.classList.toggle('is-favorite',Boolean(r.favorite));item.classList.toggle('is-pinned',Boolean(r.pinned));
+      item.innerHTML=`<div class="recipe-icon">${icons.leaf}</div><div class="recipe-info"><div class="recipe-name">${escapeHtml(r.name)}</div><div class="recipe-meta">${fmt(r.tea)} غ شاي · ${fmt(r.sugar)} غ سكر / لتر</div><span class="recipe-category">${escapeHtml(r.category||'عام')}${r.pinned?' · مثبتة':''}</span></div><div class="recipe-actions"><button class="mini-btn" data-action="favorite" aria-label="تبديل المفضلة ${escapeHtml(r.name)}" title="المفضلة">★</button><button class="mini-btn" data-action="pin" aria-label="تثبيت ${escapeHtml(r.name)}" title="تثبيت">⌃</button><button class="mini-btn" data-action="edit" aria-label="تعديل ${escapeHtml(r.name)}">${icons.edit}</button><button class="mini-btn delete" data-action="delete" aria-label="حذف ${escapeHtml(r.name)}">${icons.trash}</button></div>`;
+      item.querySelector('[data-action="favorite"]').addEventListener('click',()=>toggleRecipeFlag(r.id,'favorite'));
+      item.querySelector('[data-action="pin"]').addEventListener('click',()=>toggleRecipeFlag(r.id,'pinned'));
+      item.querySelector('[data-action="edit"]').addEventListener('click',()=>openRecipeModal(r.id));
+      item.querySelector('[data-action="delete"]').addEventListener('click',()=>deleteRecipe(r.id));
+      item.addEventListener('click',e=>{if(e.target.closest('button'))return;chooseHomeRecipe(r.id);showView('home')});
+      list.appendChild(item);
+    });
+  }
+  function updateActiveChips(){
+    const w=num($('waterInput').value);document.querySelectorAll('[data-water]').forEach(b=>b.classList.toggle('active',Math.abs(num(b.dataset.water)-w)<0.00001));
+  }
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function showToast(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2300)}
+  function openRecipeModal(id=null){
+    editingId=id;
+    const r=recipes.find(x=>x.id===id);
+    $('modalTitle').textContent=r?'تعديل الوزنية':'إضافة وزنية جديدة';
+    $('saveRecipeBtn').textContent=r?'حفظ التعديلات':'حفظ الوزنية';
+    $('recipeName').value=r?.name||'';$('teaPerLiter').value=r? r.tea:'';$('sugarPerLiter').value=r?r.sugar:'';$('recipeNotes').value=r?.notes||'';$('recipeCategory').value=r?.category||'عام';
+    $('recipeModal').classList.add('open');setTimeout(()=>$('recipeName').focus({preventScroll:true}),100);
+  }
+  function closeRecipeModal(){$('recipeModal').classList.remove('open');editingId=null}
+  function deleteRecipe(id){
+    const r=recipes.find(x=>x.id===id);if(!r)return;
+    if(!confirm(`هل تريد حذف وصفة «${r.name}»؟`))return;
+    recipes=recipes.filter(x=>x.id!==id);save();
+    const next=recipes[0]?.id||'';updateSelect(next);showToast('تم حذف الوصفة');
+  }
+  function downloadBackup(){
+    try{
+      const payload={app:'وزنيات الشاي',version:3,exportedAt:new Date().toISOString(),recipes,
+        settings:{selectedId:$('recipeSelect').value||'',water:$('waterInput').value||'500',precision:precision(),recent:(()=>{try{return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]')}catch(e){return []}})(),recentNames:(()=>{try{return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]').map(id=>recipes.find(r=>r.id===id)?.name).filter(Boolean)}catch(e){return []}})()},
+        history:getHistory(),lastUsed:localStorage.getItem('teaWeightsLastUsed.v1')||null};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='وزنيات-الشاي-نسخة-احتياطية.json';document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      try{localStorage.setItem(LAST_BACKUP_KEY,new Date().toISOString())}catch(e){}
+      updateDataHealth();showToast('تم تجهيز النسخة الاحتياطية للوصفات والإعدادات والسجل');
+    }catch(e){console.error(e);showToast('تعذر تجهيز النسخة الاحتياطية. تحقق من مساحة الجهاز.');}
+  }
+  function downloadTextFile(text,filename){
+    const blob=new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  function recipeAsText(r,index){
+    return `${index+1}. ${r.name}\n   الشاي: ${fmt(num(r.tea))} غرام / لتر\n   السكر: ${fmt(num(r.sugar))} غرام / لتر${r.notes?`\n   ملاحظات: ${r.notes}`:''}`;
+  }
+  function exportAllTxt(){
+    if(!recipes.length){showToast('لا توجد وزنيات لتصديرها');return;}
+    const sorted=recipes.slice().sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+    const content=`وزنيات الشاي\n${'='.repeat(28)}\n\n${sorted.map(recipeAsText).join('\n\n')}\n\n${'='.repeat(28)}\nإجمالي الوزنيات: ${sorted.length}`;
+    downloadTextFile(content,'وزنيات-الشاي.txt');showToast('تم تصدير جميع الوزنيات بصيغة TXT');
+  }
+  function exportSelectedTxt(){
+    const r=selected();if(!r){showToast('اختر وزنية من الصفحة الرئيسية أولاً');return;}
+    const content=`وزنية الشاي\n${'='.repeat(24)}\n\n${recipeAsText(r,0)}\n`;
+    downloadTextFile(content,`وزنية-${r.name.replace(/[\\/:*?"<>|]/g,'-')}.txt`);showToast('تم تصدير الوزنية المحددة');
+  }
+  function importBackup(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{try{
+      const data=JSON.parse(reader.result),arr=Array.isArray(data)?data:data.recipes;
+      if(!Array.isArray(arr))throw new Error('recipes');
+      if(arr.length>5000)throw new Error('limit');
+      const clean=[];let rejected=0;
+      arr.forEach(raw=>{
+        if(!raw||typeof raw!=='object'){rejected++;return;}
+        const name=String(raw.name||'').trim(),tea=Number(raw.tea),sugar=Number(raw.sugar);
+        if(!name||name.length>60||!Number.isFinite(tea)||tea<0||tea>10000||!Number.isFinite(sugar)||sugar<0||sugar>10000){rejected++;return;}
+        clean.push({id:uid(),name,tea,sugar,notes:String(raw.notes||'').slice(0,180),category:String(raw.category||'عام').slice(0,40),favorite:Boolean(raw.favorite),pinned:Boolean(raw.pinned)});
+      });
+      if(!clean.length)throw new Error('empty');
+      const mode=prompt(`تم التحقق من الملف.
+وصفات صالحة: ${clean.length}
+سجلات مستبعدة: ${rejected}
+
+اكتب «دمج» لإضافة الوصفات مع الاحتفاظ بالحالية، أو «استبدال» لاستبدالها بالكامل، أو «إلغاء».`,'دمج');
+      if(!mode||!['دمج','استبدال'].includes(mode.trim())){showToast('تم إلغاء الاستيراد');return;}
+      let next;
+      if(mode.trim()==='استبدال'){
+        if(!confirm(`تحذير: سيتم استبدال ${recipes.length} وصفة حالية بـ ${clean.length} وصفة من الملف. هل أنشأت نسخة احتياطية وتريد المتابعة؟`))return;
+        next=clean;
+      }else{
+        next=recipes.map(r=>({...r}));
+        const existing=new Set(next.map(r=>normalizeSearch(r.name)));
+        clean.forEach(r=>{const base=r.name;let candidate=base,n=2;while(existing.has(normalizeSearch(candidate))){candidate=`${base} (مستوردة ${n})`;n++;}r.name=candidate;existing.add(normalizeSearch(candidate));next.push(r);});
+      }
+      const previous=recipes;recipes=next;
+      if(!save()){recipes=previous;return;}
+      if(data.settings&&typeof data.settings==='object'&&mode.trim()==='استبدال'){
+        const st=data.settings;
+        if(st.precision!==undefined&&[0,1,2].includes(Number(st.precision)))try{localStorage.setItem(PRECISION_KEY,String(Number(st.precision)))}catch(e){}
+        if(st.water!==undefined&&Number(st.water)>0&&Number(st.water)<=1000000){$('waterInput').value=String(Number(st.water));try{localStorage.setItem(WATER_KEY,$('waterInput').value)}catch(e){}}
+        if(Array.isArray(st.recentNames))try{localStorage.setItem(RECENT_KEY,JSON.stringify(st.recentNames.map(name=>recipes.find(r=>normalizeSearch(r.name)===normalizeSearch(name))?.id).filter(Boolean).slice(0,5)))}catch(e){}
+        if(data.lastUsed)try{localStorage.setItem('teaWeightsLastUsed.v1',String(data.lastUsed))}catch(e){}
+      }
+      if(Array.isArray(data.history))try{
+        const incoming=data.history.filter(h=>h&&typeof h.name==='string'&&Number(h.water)>0).slice(0,30);
+        const combined=mode.trim()==='استبدال'?incoming:[...incoming,...getHistory()];
+        const seen=new Set();const unique=combined.filter(h=>{const key=[h.name,h.water,h.at||''].join('|');if(seen.has(key))return false;seen.add(key);return true}).slice(0,30);
+        localStorage.setItem(HISTORY_KEY,JSON.stringify(unique));
+      }catch(e){}
+      let selectedId='';
+      if(data.settings&&data.settings.selectedId){const old=data.settings.selectedId;const oldRecipe=arr.find(r=>r&&r.id===old);if(oldRecipe){const match=recipes.find(r=>normalizeSearch(r.name)===normalizeSearch(oldRecipe.name));if(match)selectedId=match.id;}}
+      updateSelect(selectedId||recipes[0]?.id||'');updateActiveChips();updateDataHealth();
+      showToast(`اكتمل الاستيراد: ${clean.length} وصفة صالحة${rejected?`، واستُبعدت ${rejected}`:''}`);
+    }catch(e){console.error(e);showToast('الملف غير صالح أو لا يحتوي على بيانات قابلة للاستيراد')}finally{$('importFile').value=''}};
+    reader.readAsText(file);
+  }
+
+  function toggleRecipeFlag(id,key){const r=recipes.find(x=>x.id===id);if(!r)return;r[key]=!r[key];save();renderList();updateSelect(id);populateCategories();applyHomeFilters();showToast(key==='favorite'?(r.favorite?'أضيفت للمفضلة':'أزيلت من المفضلة'):(r.pinned?'تم تثبيت الوزنية':'أُلغي تثبيت الوزنية'))}
+  function openUtility(title,htmlContent){$('utilityTitle').textContent=title;$('utilityContent').innerHTML=htmlContent;$('utilityModal').classList.add('open')}
+  function closeUtility(){$('utilityModal').classList.remove('open')}
+  function copyCurrentRecipe(){
+    const r=selected(),water=num($('waterInput').value);if(!r||!(water>0)){showToast('اختر وزنية وأدخل كمية ماء صحيحة');return}
+    const text=`${r.name}\nالماء: ${fmt(water)} مل\nورق الشاي: ${fmtResult(r.tea*water/1000)} غ\nالسكر: ${fmtResult(r.sugar*water/1000)} غ\nالوزنية الأصلية لكل لتر: شاي ${fmt(r.tea)} غ، سكر ${fmt(r.sugar)} غ${r.notes?'\nملاحظات: '+r.notes:''}`;
+    if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>showToast('تم نسخ المقادير')).catch(()=>fallbackCopy(text));else fallbackCopy(text);
+  }
+  function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('تم نسخ المقادير')}catch(e){showToast('تعذر النسخ تلقائيًا')}ta.remove()}
+  function showReverseCalc(){
+    const r=selected();if(!r){showToast('اختر وزنية أولاً');return}
+    openUtility('الحساب العكسي',`<div class="utility-panel"><h3>${escapeHtml(r.name)}</h3><p>اختر الكمية المتوفرة: ورق الشاي أو السكر، وسيحسب التطبيق الماء والمكوّن الآخر بالتناسب.</p><div class="field"><label for="reverseBasis">الكمية المتوفرة</label><select id="reverseBasis"><option value="tea">ورق الشاي (غرام)</option><option value="sugar">السكر (غرام)</option></select></div><div class="field"><label for="reverseAmount">الكمية (غرام)</label><input id="reverseAmount" type="number" min="0.001" max="1000000" step="any" value="${r.tea>0?fmt(r.tea):fmt(r.sugar)}"></div><div id="reverseOutput" class="utility-panel" aria-live="polite"></div><button class="btn primary" type="button" id="calculateReverse">احسب المقادير</button></div>`);
+    const calc=()=>{
+      const basis=$('reverseBasis').value,amount=Number($('reverseAmount').value),base=basis==='tea'?r.tea:r.sugar,out=$('reverseOutput');
+      if(!Number.isFinite(amount)||amount<=0||!Number.isFinite(base)||base<=0){out.innerHTML='<p>أدخل كمية أكبر من صفر، وتأكد أن مقدار المكوّن المختار في الوزنية الأصلية أكبر من صفر.</p>';return;}
+      const water=amount/base*1000,tea=r.tea*water/1000,sugar=r.sugar*water/1000;
+      if(!Number.isFinite(water)||water<=0||water>1000000){out.innerHTML='<p>الكمية الناتجة خارج النطاق المدعوم. قلّل المقدار المدخل.</p>';return;}
+      out.innerHTML=`<p><strong>كمية الماء:</strong> ${fmtResult(water)} مل</p><p><strong>ورق الشاي:</strong> ${fmtResult(tea)} غرام</p><p><strong>السكر:</strong> ${fmtResult(sugar)} غرام</p><button class="btn secondary" type="button" id="useReverseWater">استخدم كمية الماء في الحاسبة</button>`;
+      $('useReverseWater').onclick=()=>{$('waterInput').value=String(Number(water.toFixed(6)));try{localStorage.setItem(WATER_KEY,$('waterInput').value)}catch(e){}renderResults();updateActiveChips();closeUtility();showView('home')};
+    };
+    $('calculateReverse').onclick=calc;$('reverseBasis').addEventListener('change',()=>{$('reverseAmount').value=$('reverseBasis').value==='tea'?(r.tea>0?fmt(r.tea):''):(r.sugar>0?fmt(r.sugar):'');calc()});$('reverseAmount').addEventListener('input',calc);calc();
+  }
+  function showHistory(){
+    const arr=getHistory();
+    const rows=arr.slice(0,30).map((h,i)=>`<tr><td>${escapeHtml(h.name)}</td><td>${escapeHtml(h.water)} مل</td><td>${escapeHtml(h.tea)} غ</td><td>${escapeHtml(h.sugar)} غ</td><td>${escapeHtml(h.at?new Date(h.at).toLocaleDateString('ar-OM'):'—')}</td><td><button class="history-use" type="button" data-history-index="${i}">استخدم</button></td></tr>`).join('');
+    openUtility('سجل الاستخدام',`<div class="utility-panel"><p>آخر 30 عملية حساب. زر «استخدم» يعيد الوصفة وكمية الماء إلى الحاسبة.</p>${rows?`<div style="overflow:auto"><table class="utility-table"><thead><tr><th>الوزنية</th><th>الماء</th><th>الشاي</th><th>السكر</th><th>التاريخ</th><th>إجراء</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p>لا يوجد سجل حتى الآن.</p>'}<div class="utility-actions"><button class="btn secondary" type="button" id="exportHistoryBtn">تصدير السجل TXT</button><button class="btn danger" type="button" id="clearHistoryBtn">مسح السجل</button></div></div>`);
+    $('utilityContent').querySelectorAll('[data-history-index]').forEach(btn=>btn.onclick=()=>{
+      const h=arr[Number(btn.dataset.historyIndex)];if(!h)return;
+      let r=(h.recipeId&&recipes.find(x=>x.id===h.recipeId))||recipes.find(x=>normalizeSearch(x.name)===normalizeSearch(h.name));
+      if(!r){showToast('الوصفة الأصلية لم تعد موجودة');return;}
+      $('waterInput').value=String(Number(String(h.water).replace(/,/g,''))||500);try{localStorage.setItem(WATER_KEY,$('waterInput').value)}catch(e){}
+      $('recipeSelect').value=r.id;try{localStorage.setItem(SELECTED_KEY,r.id)}catch(e){}renderResults();updateActiveChips();closeUtility();showView('home');showToast('تمت استعادة العملية السابقة');
+    });
+    $('exportHistoryBtn').onclick=()=>{if(!arr.length){showToast('لا يوجد سجل لتصديره');return;}const content='سجل استخدام وزنيات الشاي\n\n'+arr.map((h,i)=>`${i+1}. ${h.name}\nالماء: ${h.water} مل\nالشاي: ${h.tea} غ\nالسكر: ${h.sugar} غ\nالتاريخ: ${h.at||''}`).join('\n\n');downloadTextFile(content,'سجل-وزنيات-الشاي.txt');showToast('تم تصدير سجل الاستخدام')};
+    $('clearHistoryBtn').onclick=()=>{if(!confirm('هل تريد حذف سجل الاستخدام بالكامل؟'))return;localStorage.removeItem(HISTORY_KEY);closeUtility();showToast('تم مسح السجل')};
+  }
+  function showCompare(){
+    if(recipes.length<2){showToast('أضف وزنيتين على الأقل للمقارنة');return;}
+    const options=recipes.slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')).map(r=>`<option value="${escapeHtml(r.id)}">${escapeHtml(r.name)}</option>`).join('');
+    openUtility('مقارنة وزنيتين',`<div class="utility-panel"><p>مقارنة على أساس لتر واحد، مع عرض المقادير حسب كمية الماء الحالية (${fmt(num($('waterInput').value)||500)} مل).</p><div class="two-fields"><div class="field"><label for="compareA">الوزنية الأولى</label><select id="compareA">${options}</select></div><div class="field"><label for="compareB">الوزنية الثانية</label><select id="compareB">${options}</select></div></div><div id="compareOutput" class="compare-grid"></div></div>`);
+    const a=$('compareA'),b=$('compareB');a.value=recipes[0].id;b.value=recipes.find(r=>r.id!==a.value)?.id||recipes[1].id;
+    const render=()=>{let ra=recipes.find(r=>r.id===a.value),rb=recipes.find(r=>r.id===b.value);if(!ra||!rb)return;const water=Number($('waterInput').value)>0?Number($('waterInput').value):500;const card=r=>`<div class="compare-card"><h4>${escapeHtml(r.name)}</h4><div class="compare-value"><span>الشاي / لتر</span><strong>${fmt(r.tea)} غ</strong></div><div class="compare-value"><span>السكر / لتر</span><strong>${fmt(r.sugar)} غ</strong></div><div class="compare-value"><span>الشاي لـ ${fmt(water)} مل</span><strong>${fmtResult(r.tea*water/1000)} غ</strong></div><div class="compare-value"><span>السكر لـ ${fmt(water)} مل</span><strong>${fmtResult(r.sugar*water/1000)} غ</strong></div></div>`;$('compareOutput').innerHTML=card(ra)+card(rb)+`<div class="compare-card" style="grid-column:1/-1"><h4>الفارق بين الوزنيتين لكل لتر</h4><div class="compare-value"><span>فرق الشاي</span><strong>${fmt(Math.abs(ra.tea-rb.tea))} غ</strong></div><div class="compare-value"><span>فرق السكر</span><strong>${fmt(Math.abs(ra.sugar-rb.sugar))} غ</strong></div></div>`;};
+    a.addEventListener('change',render);b.addEventListener('change',render);render();
+  }
+
+  function showPrecision(){
+    openUtility('دقة النتائج',`<div class="utility-panel"><p>اختر عدد المنازل العشرية التي تظهر في المقادير المحسوبة. هذا يغيّر العرض فقط ولا يغيّر الوصفة الأصلية.</p><div class="field"><label for="precisionSelect">الدقة</label><select id="precisionSelect"><option value="0">غرام كامل</option><option value="1">عُشر غرام</option><option value="2">جزء من مئة غرام</option></select></div><button class="btn primary" type="button" id="savePrecisionBtn">حفظ الدقة</button></div>`);
+    $('precisionSelect').value=String(precision());$('savePrecisionBtn').onclick=()=>{localStorage.setItem(PRECISION_KEY,$('precisionSelect').value);renderResults();closeUtility();showToast('تم تحديث دقة النتائج')};
+  }
+
+  $('addRecipeBtn').addEventListener('click',()=>openRecipeModal());
+  $('closeModal').addEventListener('click',closeRecipeModal);$('cancelModal').addEventListener('click',closeRecipeModal);
+  $('recipeModal').addEventListener('click',e=>{if(e.target===$('recipeModal'))closeRecipeModal()});
+  $('recipeForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const name=$('recipeName').value.trim(),tea=Number($('teaPerLiter').value),sugar=Number($('sugarPerLiter').value),notes=$('recipeNotes').value.trim(),category=$('recipeCategory').value.trim()||'عام';
+    if(!name||!Number.isFinite(tea)||tea<0||!Number.isFinite(sugar)||sugar<0){showToast('تحقق من الاسم والمقادير');return}
+    const duplicate=recipes.find(r=>r.name.trim().toLocaleLowerCase()===name.toLocaleLowerCase()&&r.id!==editingId);
+    if(duplicate&&!confirm('توجد وصفة بالاسم نفسه. هل تريد حفظ وصفة أخرى بهذا الاسم؟'))return;
+    const wasEditing=Boolean(editingId);let id=editingId;
+    if(id){const index=recipes.findIndex(r=>r.id===id);if(index>=0)recipes[index]={...recipes[index],name,tea,sugar,notes,category};else{id=uid();recipes.push({id,name,tea,sugar,notes,category,favorite:false,pinned:false})}}
+    else{id=uid();recipes.push({id,name,tea,sugar,notes,category,favorite:false,pinned:false})}
+    save();closeRecipeModal();updateSelect(id);showToast(wasEditing?'تم حفظ التعديلات':'تم حفظ الوزنية');
+  });
+  $('recipeSelect').addEventListener('change',()=>{localStorage.setItem(SELECTED_KEY,$('recipeSelect').value);rememberRecent($('recipeSelect').value);renderResults();addHistory(selected(),num($('waterInput').value))});
+  $('recipeSearch').addEventListener('input',renderList);
+  $('homeRecipeSearch').addEventListener('input',()=>renderHomeSearchSuggestions(true));
+  $('homeRecipeSearch').addEventListener('focus',()=>renderHomeSearchSuggestions(true));
+  $('homeRecipeSearch').addEventListener('keydown',e=>{
+    const box=$('homeSearchResults');if(box.hidden)return;
+    const items=[...box.querySelectorAll('[data-search-recipe]')];
+    if(e.key==='ArrowDown'&&items.length){e.preventDefault();searchActiveIndex=Math.min(items.length-1,searchActiveIndex+1);items.forEach((b,i)=>{b.classList.toggle('is-active',i===searchActiveIndex);b.setAttribute('aria-selected',String(i===searchActiveIndex))});items[searchActiveIndex].scrollIntoView({block:'nearest'});}
+    else if(e.key==='ArrowUp'&&items.length){e.preventDefault();searchActiveIndex=Math.max(0,searchActiveIndex-1);items.forEach((b,i)=>{b.classList.toggle('is-active',i===searchActiveIndex);b.setAttribute('aria-selected',String(i===searchActiveIndex))});items[searchActiveIndex].scrollIntoView({block:'nearest'});}
+    else if(e.key==='Enter'&&items.length){e.preventDefault();const chosen=items[searchActiveIndex>=0?searchActiveIndex:0];chooseHomeRecipe(chosen.dataset.searchRecipe);}
+    else if(e.key==='Escape'){box.hidden=true;$('homeRecipeSearch').setAttribute('aria-expanded','false');}
+  });
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.home-search')){$('homeSearchResults').hidden=true;$('homeRecipeSearch').setAttribute('aria-expanded','false')}});
+  $('homeCategoryFilter').addEventListener('change',()=>renderHomeSearchSuggestions(true));
+  $('favoritesOnlyBtn').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;applyHomeFilters();renderHomeSearchSuggestions(true)});
+  $('historyBtn').addEventListener('click',showHistory);
+  $('precisionBtn').addEventListener('click',showPrecision);
+  $('compareBtn').addEventListener('click',showCompare);
+  $('closeUtility').addEventListener('click',closeUtility);$('cancelUtility').addEventListener('click',closeUtility);
+  $('utilityModal').addEventListener('click',e=>{if(e.target===$('utilityModal'))closeUtility()});
+  $('exportTxtBtn').addEventListener('click',exportAllTxt);
+  $('exportSelectedTxtBtn').addEventListener('click',exportSelectedTxt);
+  $('waterInput').addEventListener('focus',e=>{requestAnimationFrame(()=>e.target.select())});
+  $('waterInput').addEventListener('click',e=>{e.target.select()});
+  $('waterInput').addEventListener('input',()=>{const v=Number($('waterInput').value);if($('waterInput').value!==''&&Number.isFinite(v)&&v>0&&v<=1000000)try{localStorage.setItem(WATER_KEY,String(v))}catch(e){}renderResults();updateActiveChips()});
+  $('waterInput').addEventListener('change',()=>{const v=Number($('waterInput').value);if(!Number.isFinite(v)||v<=0||v>1000000){showToast('أدخل كمية ماء بين 1 و1,000,000 مل');return;}addHistory(selected(),v)});
+  document.querySelectorAll('[data-water]').forEach(b=>b.addEventListener('click',()=>{$('waterInput').value=b.dataset.water;localStorage.setItem(WATER_KEY,b.dataset.water);renderResults();updateActiveChips()}));
+  function showView(view){$('homeView').classList.toggle('active',view==='home');$('settingsView').classList.toggle('active',view==='settings');if(view==='settings'){renderList();updateDataHealth()}window.scrollTo(0,0)}
+  $('settingsBtn').addEventListener('click',()=>showView('settings'));
+  $('homeBtn').addEventListener('click',()=>showView('home'));
+  $('exportBtn').addEventListener('click',downloadBackup);
+  $('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',e=>importBackup(e.target.files[0]));
+  $('clearAllBtn').addEventListener('click',()=>{if(!recipes.length){showToast('لا توجد وصفات لحذفها');return}if(confirm('سيتم حذف جميع الوصفات المحفوظة من هذا الجهاز. هل تريد المتابعة؟')){recipes=[];save();localStorage.removeItem(SELECTED_KEY);localStorage.removeItem(RECENT_KEY);updateSelect('');showToast('تم حذف جميع الوصفات')}});
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'){closeRecipeModal();closeUtility();}});
+  load();updateSelect();populateCategories();applyHomeFilters();updateDataHealth();
+})();
+</script>
+</body>
+</html>
